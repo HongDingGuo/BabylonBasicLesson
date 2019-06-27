@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title>Babylon Template</title>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+
+		<script src="../../lib/Babylon.js/dist/babylon.js"></script>
+		<script src="../../lib/handjs/bin/hand.js"></script>
+		<script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+    </head>
+
+   <body>
+
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <script>
+		//声明一个画布
+        var canvas = document.getElementById("renderCanvas"); 
+        //生成一个3D引擎
+		var engine = new BABYLON.Engine(canvas, true); 
+
+        //声明一个创建场景的方法
+        var f_createScene = function () {
+            //声明一个场景
+            var scene = new BABYLON.Scene(engine);
+            // 在场景中添加一个弧形摄像机,绕指定点旋转
+            var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, new BABYLON.Vector3(0,0,5), scene);
+			//camera.setTarget(BABYLON.Vector3.Zero());
+            camera.attachControl(canvas, true);
+			
+            // 在场景中添加一个半球形的光源
+            var light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
+			// 在场景中添加一个点光源
+            var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
+
+            // 在场景中添加一个球体,直径为2
+			// 方法详细参数:名字,{直径，X轴的直径，Y轴的直径，Z轴的直径，纬度在0-1的比率，经度在0-1的比率，是否可以更新，侧向},场景
+            var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter:2}, scene);
+
+            return scene;
+        };
+		
+		//调用创建场景的方法
+        var scene = f_createScene(); 
+        // 注册渲染循环以重复渲染场景,定时重复渲染
+        engine.runRenderLoop(function () { 
+                scene.render();
+        });
+        // 观察浏览器/画布调整大小事件
+        window.addEventListener("resize", function () { 
+                engine.resize();
+        });
+    </script>
+
+   </body>
+
+</html>
