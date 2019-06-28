@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>HDG_DBAL Lesson 005 - Materials材质</title>
+		
+		<style type="text/css">
+			html,body{
+				overflow: hidden;
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			#renderCanvas{
+				width: 100%;
+				height: 100%;
+				touch-action: none;
+			}
+		</style>
+		
+		<script src="../../lib/Babylon.js/dist/babylon.js"></script>
+		<script src="../../lib/handjs/bin/hand.js"></script>
+		<script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+	</head>
+	
+	<body>
+		<canvas id="renderCanvas" touch-action="none"></canvas>
+		<script type="text/javascript">
+			var canvas = document.getElementById("renderCanvas");
+			var engine = new BABYLON.Engine(canvas,true);
+			
+			var f_createScene = function(){
+				var scene = new BABYLON.Scene(engine);
+				scene.ambientColor = new BABYLON.Color3(1,1,1);
+				var camera = new BABYLON.ArcRotateCamera("camera",Math.PI/2,Math.PI/2,2,new BABYLON.Vector3(0,10,5),scene);
+				camera.setTarget(BABYLON.Vector3.Zero());
+				camera.attachControl(canvas,true);
+				var light1 = new BABYLON.HemisphericLight("light1",new BABYLON.Vector3(1,1,0),scene);
+				//var vight2 = new BABYLON.PointLight("light2",new BABYLON.Vector3(0,1,-1),scene);
+				var testSphere = BABYLON.MeshBuilder.CreateSphere("testSphere",{diameter:3},scene);
+				
+				/* 创建测试材料球 */
+				var testMaterial = new BABYLON.StandardMaterial("testMaterial",scene);
+				testMaterial.diffuseColor = new BABYLON.Color3(1,0,1);
+				testMaterial.specularColor = new BABYLON.Color3(0.5,0.6,0.87);
+				testMaterial.emissiveColor = new BABYLON.Color3(0.23,0.98,0.53);
+				testMaterial.ambientColor = new BABYLON.Color3(0.23,0.98,0.53);
+				testMaterial.wireframe  = true;
+				testSphere.material = testMaterial;
+				
+				return scene;
+			}
+			
+			var myScene = f_createScene();
+			engine.runRenderLoop(function(){
+				myScene.render();
+			});
+			
+			window.addEventListener("resize",function(){
+				engine.resize();
+			});
+		</script>
+	</body>
+</html>
