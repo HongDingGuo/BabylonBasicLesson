@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>HDG_DBAL Lesson 008 - Animations动画</title>
+		
+		<style type="text/css">
+			html,body{
+				overflow: hidden;
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			#renderCanvas{
+				width: 100%;
+				height: 100%;
+				touch-action: none;
+			}
+		</style>
+		
+		<script src="../../lib/Babylon.js/dist/babylon.js"></script>
+		<script src="../../lib/handjs/bin/hand.js"></script>
+		<script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+	</head>
+	<body>
+		<canvas id="renderCanvas" touch-action="none"></canvas>
+		<script type="text/javascript">
+			var canvas = document.getElementById("renderCanvas");
+			var engine = new BABYLON.Engine(canvas,true);
+			
+			var f_createScene = function(){
+				var scene = new BABYLON.Scene(engine);
+				var camera = new BABYLON.ArcRotateCamera("camera1",Math.PI/2,Math.PI/2,2,new BABYLON.Vector3(0,10,5),scene);
+				camera.setTarget(BABYLON.Vector3.Zero());
+				camera.attachControl(canvas,true);
+				
+				var hemiSphereLight = new BABYLON.HemisphericLight("hemiSphereLight1",new BABYLON.Vector3(0,-1,0),scene);
+				hemiSphereLight.diffuseColor = new BABYLON.Color3(1,0,0);
+				hemiSphereLight.specularColor = new BABYLON.Color3(0,0,1);
+				hemiSphereLight.groundColor = new BABYLON.Color3(0,1,0);
+				
+				/* 1.Basic animation  */
+				var box1 = BABYLON.MeshBuilder.CreateBox("box1",{size:3},scene);
+				box1.position.y = 2;
+				
+				var animationBox1 = new BABYLON.Animation("myAnimation1","scaling.x",30,BABYLON.Animation._ANIMATIONTYPE_FLOAT,BABYLON.Animation._ANIMATIONLOOPMODE_RELATIVE);
+				/*
+				var keys = []; 
+				keys.push({
+				  frame: 0,
+				  value: BABYLON.Vector3.Zero(),
+				  outTangent: new BABYLON.Vector3(1, 0, 0)
+				});
+				keys.push({
+				  frame: 20,
+				  inTangent: new BABYLON.Vector3(1, 0, 0),
+				  value: new BABYLON.Vector3(1, 1, 1),
+				  outTangent: new BABYLON.Vector3(-1, 0, 0)
+				});
+				keys.push({
+				  frame: 100,
+				  inTangent: new BABYLON.Vector3(-1, 0, 0),
+				  value: BABYLON.Vector3.Zero()
+				});
+				*/
+			   var animationBox2 = new BABYLON.Animation("myAnimation2","scaling.y",30,BABYLON.Animation._ANIMATIONTYPE_FLOAT,BABYLON.Animation._ANIMATIONLOOPMODE_RELATIVE);
+			   var keys = [];
+			   keys.push({
+			   	frame:0,
+			   	value:1
+			   });
+			   keys.push({
+			   	frame:20,
+			   	value:0.2
+			   });
+			   keys.push({
+			   	frame:100,
+			   	value:1
+			   });
+				animationBox1.setKeys(keys);
+				animationBox2.setKeys(keys);
+				box1.animations = [];
+				box1.animations.push(animationBox1);
+				box1.animations.push(animationBox2);
+				/* 开始动画方法的参数说明：
+				scene.beginAnimation(target 目标对象，from 起始帧值，to 终点帧值，loop 是否循环，speedRatio 动画播放速度，
+										onAnimationEnd() 动画完成后的回调，animatable 可选的特定动画,stopCurrent 是否停止当前在播放的动画，默认是)
+				*/
+				scene.beginAnimation(box1,0,100,true);
+				
+				return scene;
+			}
+			
+			var myScene = f_createScene();
+			engine.runRenderLoop(function(){
+				myScene.render();
+			});
+			
+			window.addEventListener("resize",function(){
+				engine.resize();
+			});
+		</script>
+	</body>
+</html>
