@@ -29,9 +29,94 @@
 		<script type="text/javascript">
 			var canvas = document.getElementById("renderCanvas");
 			var engine = new BABYLON.Engine(canvas,true);
-			
+			var camera;
 			var f_createScene = function(){
+				var scene = new BABYLON.Scene(engine);
+				var light = new BABYLON.PointLight("Omni",new BABYLON.Vector3(0,100,100),scene);
+				camera = new BABYLON.ArcRotateCamera("camera",0,0.8,100,new BABYLON.Vector3.Zero(),scene);
+				camera.attachControl(canvas,true);
+				var ground = new BABYLON.MeshBuilder.CreateGround("ground",{width:500,height:500},scene);
+				//创建一个目标盒子
+				var box = new BABYLON.MeshBuilder.CreateBox("box",{height: 2, width: 4, depth: 4},scene);
+				box.position.y = 2;
+				var boxMat = new BABYLON.StandardMaterial("boxMat",scene);
+				boxMat.diffuseColor = new BABYLON.Color3(1,0,0);
+				box.material = boxMat;
+				box.isPickable = false;
+				//创建其他盒子对象
+				var box2 = new BABYLON.MeshBuilder.CreateBox("box2",{size:8},scene);
+				box2.position = new BABYLON.Vector3(-20,4,0);
+				var box2Mat = new BABYLON.StandardMaterial("box2Mat",scene);
+				box2Mat.diffuseColor = new BABYLON.Color3(0,0,1);
+				box2.material = box2Mat;
+				//克隆一个box2
+				var box3 = box2.clone();
+				box3.position.x -= 20;
+				//创建一个绿色盒子
+				var box4 = new BABYLON.MeshBuilder.CreateBox("box2",{size:8},scene);
+				box4.position = new BABYLON.Vector3(0, 4, 30); 
+				var box4Mat = new BABYLON.StandardMaterial("box4Mat", scene);
+				box4Mat.diffuseColor = new BABYLON.Color3(0, 1, 0);
+				box4.material = box4Mat;
 				
+				function f_mouseMove(){
+					var pickResult = scene.pick(scene.pointerX,scene.pointerY);
+					if(pickResult.hit){
+						var diffX = pickResult.pickedPoint.x - box.position.x;
+						var diffY = pickResult.pickedPoint.z - box.position.z;
+						box.rotation.y = Math.atan2(diffX,diffY);
+					}
+				}
+				
+				scene.onPointerMove = function(){
+					f_mouseMove();
+				};
+				
+				function f_vecToLocal(vector,mesh){
+					var m = mesh.getWorldMatrix();
+					var v = BABYLON.Vector3.TransformCoordinates(vector,m);
+					return v;
+				}
+				
+				//mesh筛选过滤
+				function predicate(mesh){
+					if (mesh == box2 || mesh == box){
+					return false;
+					}
+					return true;
+				}
+				
+				function f_castRay(){
+					var originpos = box.position;
+					var forward = new BABYLON.Vector3(0,0,1);
+					forward = f_vecToLocal(forward,box);
+					var direction = forward.subtract(originpos);
+					direction = BABYLON.Vector3.Normalize(direction);
+					var length = 100;
+					var ray = new BABYLON.Ray(originpos,direction,length);
+					let rayHelper = new BABYLON.RayHelper(ray);
+					rayHelper.show(scene);
+					//不带网格过滤
+					var hit = scene.pickWithRay(ray);
+					//具有网格过滤
+					//var hit = scene.pickWithRay(ray,predicate);
+					if(hit.pickedMesh){
+						hit.pickedMesh.scaling.y+=0.01;
+					}
+					//多个选择
+					//var hits = scene.multiPickWithRay(ray);
+					//if (hits){
+					//	for (var i=0; i<hits.length; i++){
+					//	hits[i].pickedMesh.scaling.y += 0.01;
+					//	}
+					//}
+				}
+				
+				scene.registerBeforeRender(function(){
+					f_castRay();
+				});
+				
+				return scene;
 			}
 			
 			var myScene = f_createScene();

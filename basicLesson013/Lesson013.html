@@ -23,6 +23,54 @@
 		<script src="../../lib/handjs/bin/hand.js"></script>
 		<script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
 	</head>
+	
 	<body>
+		<canvas id="renderCanvas" touch-action="none"></canvas>
+		<script type="text/javascript">
+			var canvas = document.getElementById("renderCanvas");
+			var engine = new BABYLON.Engine(canvas,true);
+			
+			var f_createScene = function(){
+				var scene = new BABYLON.Scene(engine);
+				var light = new BABYLON.DirectionalLight("light1",new BABYLON.Vector3(0, -1, 0),scene);
+				light.direction = new BABYLON.Vector3(-1,-1,1);
+				var camera1 = new BABYLON.ArcRotateCamera("camera1",Math.PI/2,Math.PI/2,2,new BABYLON.Vector3(0,10,-10),scene);
+				camera1.setTarget(BABYLON.Vector3.Zero());
+				camera1.attachControl(canvas,true);
+				
+				//添加一个天空盒
+				var skybox = new BABYLON.MeshBuilder.CreateBox("skybox",{size:100},scene);
+				var skyboxMat = new BABYLON.StandardMaterial("skyboxMat",scene);
+				skyboxMat.reflectionTexture = new BABYLON.CubeTexture("textures/skybox",scene);
+				//设置图片的坐标类型为天空盒
+				skyboxMat.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+				//设置材质参数
+				//diffuseColor:漫反射颜色
+				skyboxMat.diffuseColor = new BABYLON.Color3(0, 0, 0);
+				//specularColor:镜面反射颜色
+				skyboxMat.specularColor = new BABYLON.Color3(0, 0, 0);
+				//不接受灯光渲染
+				skyboxMat.disableLighting = true;
+				//反而不剔除
+				skyboxMat.backFaceCulling = false;
+				skybox.material = skyboxMat;
+				
+				var box1 = new BABYLON.MeshBuilder.CreateBox("box1",{size:2},scene);
+				var box1Mat = new BABYLON.StandardMaterial("box1Mat",scene);
+				box1Mat.backFaceCulling = true;
+				box1Mat.alpha = 0.2;
+				box1.material =  box1Mat;
+				return scene;
+			}
+			
+			var myScene = f_createScene();
+			engine.runRenderLoop(function(){
+				myScene.render();
+			});
+			window.addEventListener("resize",function(){
+				engine.resize();
+			});
+			
+		</script>
 	</body>
 </html>

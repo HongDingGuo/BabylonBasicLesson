@@ -33,15 +33,28 @@
 			var f_createScene = function(){
 				var scene = new BABYLON.Scene(engine);
 				var light = new BABYLON.HemisphericLight("light",new BABYLON.Vector3(0,-1,0),scene);
-				var camera1 = new BABYLON.ArcRotateCamera("camera1",Math.PI/2,Math.PI/2,2,new BABYLON.Vector3(0,10,-10),scene);
+				var camera1 = new BABYLON.ArcRotateCamera("camera1",0,0,1,new BABYLON.Vector3(0,0,-30),scene);
 				camera1.setTarget(BABYLON.Vector3.Zero());
 				camera1.attachControl(canvas,true);
 				
-				var box1 = new BABYLON.MeshBuilder.CreateBox("box1",{size:2},scene);
-				box1.position.y = 1;
+				//先创建一个用于标记碰撞位置的平面
+				var impact = new BABYLON.MeshBuilder.CreatePlane("impact",{},scene);
+				impact.material = new BABYLON.StandardMaterial("impactMat",scene);
+				impact.material.diffuseTexture = new BABYLON.Texture("textures/impact.png",scene);
+				impact.material.diffuseTexture.hasAlpha = true;
+				impact.position = new BABYLON.Vector3(0,0,-0.1);
 				
-				/* 明天早上记得将案例写到这里来 */
+				//创建一个检测碰撞的墙体
+				var wall = new BABYLON.MeshBuilder.CreatePlane("wall",{size:20.0},scene);
+				wall.material = new BABYLON.StandardMaterial("wallMat",scene);
+				wall.material.emissiveColor = new BABYLON.Color3(0,1,0);
 				
+				scene.onPointerDown = function(evt,pickResult){
+					if(pickResult.hit){
+						impact.position.x = pickResult.pickedPoint.x;
+						impact.position.y = pickResult.pickedPoint.y;
+					}
+				};
 				return scene;
 			}
 			
@@ -49,10 +62,10 @@
 			engine.runRenderLoop(function(){
 				myScene.render();
 			});
+			
 			window.addEventListener("resize",function(){
 				engine.resize();
 			});
-			
 		</script>
 	</body>
 </html>
